@@ -51,7 +51,6 @@ import {
           where: {
             id: userData.userId,
           },
-          relations: ['company'],
         })
   
         if (!userFound) {

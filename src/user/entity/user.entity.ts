@@ -7,22 +7,16 @@ import { Roles } from 'src/common/types/roles'
 export class User extends BaseEntity {
   
   @Column({ unique: true })
-  username: string
+  usuario: string
 
   @Column({ nullable: true })
-  fullname: string
+  nombre: string
 
   @Column({nullable: true})
-  firstName: string
-
-  @Column({nullable: true})
-  lastName: string
+  apellido: string
 
   @Column({ unique: true })
   email: string
-
-  @Column({ nullable: true })
-  phone: string
 
   @Column({ default: true })
   active: boolean
