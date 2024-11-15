@@ -30,7 +30,6 @@ export class UserController {
     const conditions = [email && { email }, username && { username }]
     return this.userRepository.findOne({
       where: conditions,
-      relations: ['company'],
     })
   }
 

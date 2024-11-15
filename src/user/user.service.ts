@@ -31,7 +31,6 @@ export class UserService {
     const conditions = [email && { email }, usuario && { usuario }]
     return this.userRepository.findOne({
       where: conditions,
-      relations: ['company'],
     })
   }
 }
