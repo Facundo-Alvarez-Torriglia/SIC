@@ -50,5 +50,20 @@ import {
         .signUpAdminBySuperAdmin(user)
     }
 
+
+    
+    @Post('create-delegado')
+    @UseGuards(AuthGuard)
+    @RolesG(Roles.superAdmin)
+    @HttpCode(201)
+    async signUpDelegadoByAdmin(
+      @Body() user: SignUpAdminDto,
+      @Req() req: Request & { user: UserGuardDto},
+    ): Promise<boolean> {
+      return await this.authService
+        .withUser(req.user)
+        .signUpDelegadoByAdmin(user)
+    }
+
   }
   
