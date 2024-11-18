@@ -189,5 +189,40 @@ export class AuthService {
       }
     }
   }
+
+  async signUpUserByAdmin(userData: SignUpDto): Promise<boolean> {
+    try {
+      const {
+        usuario,
+        nombre,
+        apellido,
+        legajo,
+        email,
+        password,
+      } = userData
+      const userExists = await this.userService.checkIfUserExists({
+        email,
+        usuario,
+      })
+      if (userExists) {
+        throw new Error('User already exists')
+      }
+      const hashedPassword = await bcrypt.hash(password, 10)
+      const newUser = new User({
+        usuario,
+        nombre,
+        apellido,
+        legajo,
+        email,
+        password : hashedPassword,
+      })
+      return true
+    } catch (error) {
+      console.log('Error sign up', error)
+       {
+        throw error
+      }
+    }
+  }
   
 }
