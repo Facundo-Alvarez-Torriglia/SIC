@@ -22,7 +22,7 @@ export class DelegacionesService {
   async createDelegacion(delegacionDto: CreateDelegacionDto): Promise<Delegaciones> {
     // Verifica si la delegación ya existe
     const existeDelegacion = await this.delegacionesRepository.findOne({
-      where: { nombre: delegacionDto.nombre },
+      where: [{ nombre: delegacionDto.nombre},{email: delegacionDto.email},]
     });
 
     if (existeDelegacion) {
