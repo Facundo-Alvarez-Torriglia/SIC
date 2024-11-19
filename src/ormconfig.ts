@@ -1,5 +1,6 @@
 import { DataSourceOptions, DataSource } from 'typeorm'
 import * as dotenv from 'dotenv'
+import { Delegaciones } from './delegaciones/entity/delegaciones.entity'
 
 dotenv.config()
 const connectionOptions: DataSourceOptions = {

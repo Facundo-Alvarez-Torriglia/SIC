@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { DelegacionesModule } from './delegaciones/delegaciones.module';
 import AppDataSource from './ormconfig'
 
 @Module({
@@ -12,10 +13,11 @@ import AppDataSource from './ormconfig'
     TypeOrmModule.forRoot(AppDataSource.options),
     AuthModule,
     UserModule,
+    DelegacionesModule,
     JwtModule.register({
       global: true,
       secret: process.env['JWT_SECRET'],
-      signOptions: { expiresIn: '60m' },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AppController],
