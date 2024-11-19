@@ -1,25 +1,30 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { AuthModule } from './auth/auth.module'
+import { UserModule } from './user/user.module'
+import { JwtModule } from '@nestjs/jwt'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { DelegacionesModule } from './delegaciones/delegaciones.module';
+import AppDataSource from './ormconfig'
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      "type": "mysql",
-      "host": "localhost",
-      "port": 3306,
-      "username": "root",
-      "password": "root",
-      "database": "DIC",
-      "entities": ["dist/**/*.entity{.ts,.js}"],
-      "synchronize": false
+    TypeOrmModule.forRoot(AppDataSource.options),
+    AuthModule,
+    UserModule,
+    DelegacionesModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env['JWT_SECRET'],
+      signOptions: { expiresIn: '1d' },
     }),
-    AuthModule, UserModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply().forRoutes('*')
+  }
+}

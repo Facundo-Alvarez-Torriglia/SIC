@@ -6,20 +6,32 @@ import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
- currentUser: UserGuardDto
+  currentUser: UserGuardDto
 
- constructor(
-   @InjectRepository(User)
-   private readonly userRepository:Repository<User>
-   
- ) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
 
-    async findOneOptions(
-        options: FindOneOptions <User>,
-      ): Promise<User | undefined> {
-        return this.userRepository.findOne(options)
-      }
+  ) { }
 
+  async createUser(user: User): Promise<User> {
+    return this.userRepository.save(user)
+  }
+  async findOneOptions(
+    options: FindOneOptions<User>,
+  ): Promise<User | undefined> {
+    return this.userRepository.findOne(options)
+  }
 
+  async checkIfUserExists(params: {
+    email?: string
+    usuario?: string
+  }): Promise<User> {
+    const { email, usuario } = params
+    const conditions = [email && { email }, usuario && { usuario }]
+    return this.userRepository.findOne({
+      where: conditions,
+    })
+  }
 }
 
