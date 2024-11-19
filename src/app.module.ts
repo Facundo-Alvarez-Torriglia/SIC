@@ -13,12 +13,12 @@ import AppDataSource from './ormconfig'
     TypeOrmModule.forRoot(AppDataSource.options),
     AuthModule,
     UserModule,
+    DelegacionesModule,
     JwtModule.register({
       global: true,
       secret: process.env['JWT_SECRET'],
       signOptions: { expiresIn: '1d' },
     }),
-    DelegacionesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
