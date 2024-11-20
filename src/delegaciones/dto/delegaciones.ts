@@ -26,4 +26,5 @@ export class CreateDelegacionDto {
   @IsOptional()
   @IsBoolean()
   status?: boolean;
+
 }
