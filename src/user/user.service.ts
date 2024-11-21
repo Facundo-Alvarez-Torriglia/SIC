@@ -14,6 +14,13 @@ export class UserService {
 
   ) { }
 
+  async test(): Promise<User> {
+    try {
+      throw new Error('hola')
+    } catch (error) {
+      throw new Error('hola')
+    }
+  }
   async createUser(user: User): Promise<User> {
     return this.userRepository.save(user)
   }

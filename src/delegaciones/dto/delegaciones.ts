@@ -22,8 +22,9 @@ export class CreateDelegacionDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: true, default: true })
+  @ApiProperty({ example: true, default: true})
   @IsOptional()
   @IsBoolean()
-  status?: boolean = true;
+  status?: boolean;
+
 }

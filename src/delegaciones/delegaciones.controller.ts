@@ -1,35 +1,32 @@
-import { Body, Controller, Post, HttpException, HttpStatus, Get, Param, ParseIntPipe, NotFoundException, UseGuards, HttpCode, Query, Req } from '@nestjs/common';
-import { CreateDelegacionDto } from './dto/delegaciones';  
+import { Body, Controller, Post, HttpException, HttpStatus, Get, Param, ParseIntPipe, NotFoundException, HttpCode, Query, Req, Patch } from '@nestjs/common';
+import { CreateDelegacionDto } from './dto/delegaciones';
 import { DelegacionesService } from './delegaciones.service';
-import { RolesG } from 'src/auth/roles.decorator';
 import { User } from 'src/user/entity/user.entity';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { Roles } from 'src/common/types/roles';
+import { Request } from 'express';
+import { UpdateDelegacionDto } from './dto/update-delegacion';
 
 @Controller('delegaciones')
 export class DelegacionesController {
-  constructor(private readonly delegacionesService: DelegacionesService) {} 
-
+  constructor(private readonly delegacionesService: DelegacionesService) { }
 
   @Get('all')
   @HttpCode(200)
-  //@UseGuards(AuthGuard)
-  //@RolesG(Roles.superAdmin, Roles.admin)
   async getAllDelegaciones(
     @Query('pageSize') pageSize: number,
     @Query('page') page: number,
     @Req() req: Request & { user: User },
   ) {
-    return this.delegacionesService.getAllDelegaciones(pageSize, page)
+    return this.delegacionesService.getAllDelegaciones(pageSize, page);
   }
 
-  @Get('/:id') async getDelegacionById(@Param('id', ParseIntPipe) id: number) { // Usa ParseIntPipe para asegurar que el ID sea un número 
-    const delegacion = await this.delegacionesService.encontrarDelegacion(id); 
-    if (!delegacion) { 
-      throw new NotFoundException('Delegación no encontrada'); 
-    } 
-    return delegacion; 
-  } 
+  @Get('/:id')
+  async getDelegacionById(@Param('id', ParseIntPipe) id: number) {
+    const delegacion = await this.delegacionesService.encontrarDelegacion(id);
+    if (!delegacion) {
+      throw new NotFoundException('Delegación no encontrada');
+    }
+    return delegacion;
+  }
 
   @Post()
   async createDelegacion(@Body() delegacion: CreateDelegacionDto) {
@@ -43,10 +40,44 @@ export class DelegacionesController {
       }
     }
   }
+
+  // Borrar temporalmente una Delegacion 
+  @Patch('/:action/:id')
+  async updateDelegacionStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('action') action: string,
+  ) {
+    if (action === 'borrar') { // http://localhost:8080/delegaciones/borrar/1
+      await this.delegacionesService.softDeleteDelegacion(id);
+      return { message: 'Delegación borrada correctamente' };
+    } else if (action === 'restaurar') { // http://localhost:8080/delegaciones/restaurar/1
+      const resultado = await this.delegacionesService.restaurarDelegacion(id);
+      if (!resultado) {
+        throw new HttpException('No se pudo restaurar la delegación', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      return { message: 'Delegación restaurada correctamente' };
+    } else {
+      throw new HttpException('Acción no válida', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  //Modificar una Delegacion
+  @Patch('/:id')
+  async updateDelegacion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDelegacionDto: UpdateDelegacionDto,) {
+    const updatedDelegacion = await this.delegacionesService.updateDelegacion(id, updateDelegacionDto);
+    if (!updatedDelegacion) { throw new NotFoundException('Delegación no encontrada'); }
+    return updatedDelegacion;
+  }
 }
 
 
 
 
-    
+
+
+
+
+
 

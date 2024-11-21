@@ -18,7 +18,7 @@ export class Delegaciones extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   status?: boolean;
 }
 

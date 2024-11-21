@@ -1,39 +1,38 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { Delegaciones } from './entity/delegaciones.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateDelegacionDto } from './dto/delegaciones'; 
+import { UpdateDelegacionDto } from './dto/update-delegacion';
 
 @Injectable()
 export class DelegacionesService {  
   constructor(
     @InjectRepository(Delegaciones)
-    private readonly delegacionesRepository: Repository<Delegaciones>,  // Usa el repositorio correcto
+    private readonly delegacionesRepository: Repository<Delegaciones>,
   ) {}
 
-  //Encontrar Delegacion
   async encontrarDelegacion(id: number): Promise<Delegaciones> { 
-    const delegacion = await this.delegacionesRepository.findOne({ where: { id } }); 
+    const delegacion = await this.delegacionesRepository.findOne({ where: { id, status: false } });
     if (!delegacion) { 
       throw new NotFoundException('Delegación no encontrada'); 
-    } return delegacion; } 
+    } 
+    return delegacion; 
+  }
 
-    //Crear Delegacion 
   async createDelegacion(delegacionDto: CreateDelegacionDto): Promise<Delegaciones> {
-    // Verifica si la delegación ya existe
     const existeDelegacion = await this.delegacionesRepository.findOne({
-      where: { nombre: delegacionDto.nombre },
+      where: [{ nombre: delegacionDto.nombre }, { email: delegacionDto.email }],
     });
 
     if (existeDelegacion) {
       throw new ConflictException('La delegación ya existe');
     }
 
-    const delegacion = this.delegacionesRepository.create(delegacionDto);  // Crea la entidad usando el DTO
-    return await this.delegacionesRepository.save(delegacion);  // Guarda la entidad en la base de datos
+    const delegacion = this.delegacionesRepository.create(delegacionDto);
+    return await this.delegacionesRepository.save(delegacion);
   }
 
-  //obteener todas las delegaciones
   async getAllDelegaciones(
     pageSize: number = 10,
     page: number = 1,
@@ -41,6 +40,7 @@ export class DelegacionesService {
     try {
       const queryBuilder = this.delegacionesRepository.createQueryBuilder('delegacion');
       const [result, count] = await queryBuilder
+        .where('delegacion.status = :status', { status: false })
         .skip((page - 1) * pageSize)
         .take(pageSize)
         .getManyAndCount();
@@ -58,6 +58,43 @@ export class DelegacionesService {
       throw new Error(error);
     }
   }
+
+  async softDeleteDelegacion(id: number): Promise<void> { 
+    const delegacion = await this.delegacionesRepository.findOne({ where: { id, status: false } });
+    if (!delegacion) {
+      throw new NotFoundException('Delegación no encontrada');
+    } 
+    delegacion.status = true;
+    await this.delegacionesRepository.save(delegacion); 
+  }
+    
+  async restaurarDelegacion(id: number): Promise<boolean> {
+    const delegacionExist = await this.delegacionesRepository.findOne({ where: { id } });
+
+    if (!delegacionExist) {
+      throw new ConflictException('La Delegación con el id ' + id + ' no existe');
+    }
+
+    if (!delegacionExist.status) {
+      throw new ConflictException('La delegación no está borrada');
+    }
+
+    const rows: UpdateResult = await this.delegacionesRepository.update(
+      { id },
+      { status: false },
+    );
+
+    return rows.affected === 1;
+  }
+
+  async updateDelegacion(id: number, updateDelegacionDto: UpdateDelegacionDto): Promise<Delegaciones> { 
+    const delegacion = await this.delegacionesRepository.preload({ id, ...updateDelegacionDto, }); 
+    if (!delegacion) { throw new NotFoundException('Delegación no encontrada'); } 
+    return this.delegacionesRepository.save(delegacion); 
+  } 
 }
+
+
+
 
 
