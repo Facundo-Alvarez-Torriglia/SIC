@@ -1,12 +1,13 @@
 import { Body, Controller, Post, HttpException, HttpStatus, Get, Param, ParseIntPipe, NotFoundException, HttpCode, Query, Req, Patch } from '@nestjs/common';
-import { CreateDelegacionDto } from './dto/delegaciones';  
+import { CreateDelegacionDto } from './dto/delegaciones';
 import { DelegacionesService } from './delegaciones.service';
 import { User } from 'src/user/entity/user.entity';
 import { Request } from 'express';
+import { UpdateDelegacionDto } from './dto/update-delegacion';
 
 @Controller('delegaciones')
 export class DelegacionesController {
-  constructor(private readonly delegacionesService: DelegacionesService) {} 
+  constructor(private readonly delegacionesService: DelegacionesService) { }
 
   @Get('all')
   @HttpCode(200)
@@ -40,6 +41,7 @@ export class DelegacionesController {
     }
   }
 
+  // Borrar temporalmente una Delegacion 
   @Patch('/:action/:id')
   async updateDelegacionStatus(
     @Param('id', ParseIntPipe) id: number,
@@ -58,6 +60,16 @@ export class DelegacionesController {
       throw new HttpException('Acción no válida', HttpStatus.BAD_REQUEST);
     }
   }
+
+  //Modificar una Delegacion
+  @Patch('/:id')
+  async updateDelegacion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDelegacionDto: UpdateDelegacionDto,) {
+    const updatedDelegacion = await this.delegacionesService.updateDelegacion(id, updateDelegacionDto);
+    if (!updatedDelegacion) { throw new NotFoundException('Delegación no encontrada'); }
+    return updatedDelegacion;
+  }
 }
 
 
@@ -67,5 +79,5 @@ export class DelegacionesController {
 
 
 
-    
+
 

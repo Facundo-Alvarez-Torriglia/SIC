@@ -3,6 +3,7 @@ import { Delegaciones } from './entity/delegaciones.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { CreateDelegacionDto } from './dto/delegaciones'; 
+import { UpdateDelegacionDto } from './dto/update-delegacion';
 
 @Injectable()
 export class DelegacionesService {  
@@ -85,6 +86,12 @@ export class DelegacionesService {
 
     return rows.affected === 1;
   }
+
+  async updateDelegacion(id: number, updateDelegacionDto: UpdateDelegacionDto): Promise<Delegaciones> { 
+    const delegacion = await this.delegacionesRepository.preload({ id, ...updateDelegacionDto, }); 
+    if (!delegacion) { throw new NotFoundException('Delegación no encontrada'); } 
+    return this.delegacionesRepository.save(delegacion); 
+  } 
 }
 
 

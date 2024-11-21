@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { DelegacionesModule } from './delegaciones/delegaciones.module';
+import { InformeSocialModule } from './informe-social/informe-social.module';
 import AppDataSource from './ormconfig'
 
 @Module({
@@ -19,6 +20,7 @@ import AppDataSource from './ormconfig'
       secret: process.env['JWT_SECRET'],
       signOptions: { expiresIn: '1d' },
     }),
+    InformeSocialModule,
   ],
   controllers: [AppController],
   providers: [AppService],
